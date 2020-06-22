@@ -11,7 +11,7 @@ player.title('Python Player')
 player.geometry('500x600')
 
 # File can be changed
-File = 'ImpactModerato.wav'
+File = 'file_example_MP3_2MG.mp3'
 
 # metadata
 tag=TinyTag.get(File)
