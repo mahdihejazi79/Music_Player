@@ -11,7 +11,7 @@ player.title('Python Player')
 player.geometry('500x600')
 
 # File can be changed
-File = 'b.wav'
+File = 'ImpactModerato.wav'
 
 # metadata
 tag=TinyTag.get(File)
@@ -79,7 +79,7 @@ if File.endswith('.mp3'):
 	song=MP3(File)
 	songlength=int(song.info.length)
 elif File.endswith('.wav'):
-	song=sf.SoundFile('b.wav')
+	song=sf.SoundFile(File)
 	songlength=int(len(song)/song.samplerate)
 
 Minute=int(songlength/60)
