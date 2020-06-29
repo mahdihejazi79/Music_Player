@@ -1,126 +1,180 @@
+import shutil, os
 import pygame
 import tkinter as tkr
 from mutagen.mp3 import MP3
 import soundfile as sf
 from tinytag import TinyTag
 
-# create GUI
-player=tkr.Tk()
 
-player.title('Python Player')
-player.geometry('500x600')
+def mainFunc(File):
+    # create GUI
+    player=tkr.Tk()
 
-# File can be changed
-File = 'file_example_MP3_2MG.mp3'
+    player.title('Python Player')
+    player.geometry('500x600')
 
-# metadata
-tag=TinyTag.get(File)
+    # File can be changed
+    #File = 'Library\\file_example_MP3_2MG.mp3'
 
-# play when run program
-pygame.init()
-pygame.mixer.init()
-pygame.mixer.music.load(File)
-pygame.mixer.music.play()
+    # metadata
+    tag=TinyTag.get(File)
 
-# define functions for buttons
-def PlayAgain():
-	pygame.mixer.music.load(File)
-	pygame.mixer.music.play()
+    # play when run program
+    pygame.init()
+    #pygame.mixer.init()
+    #pygame.mixer.music.load(File)
+    #pygame.mixer.music.play()
 
-def Stop():
-	pygame.mixer.music.stop()
+    # define functions for buttons
+    def PlayAgain():
+        pygame.mixer.music.load(File)
+        pygame.mixer.music.play()
 
-def Pause():
-	pygame.mixer.music.pause()
+    def Stop():
+        pygame.mixer.music.stop()
 
-def Resume():
-	pygame.mixer.music.unpause()
+    def Pause():
+        pygame.mixer.music.pause()
 
-# create buttons
-pause=tkr.Button(player,width=5,height=3,text='PAUSE',command=Pause)
-pause.pack(fill='x')
+    def Resume():
+        pygame.mixer.music.unpause()
 
-resume=tkr.Button(player,width=5,height=3,text='RESUME',command=Resume)
-resume.pack(fill='x')
+    # create buttons
+    pause=tkr.Button(player,width=5,height=3,text='PAUSE',command=Pause)
+    pause.pack(fill='x')
 
-stop=tkr.Button(player,width=5,height=3,text='STOP',command=Stop)
-stop.pack(fill='x')
+    resume=tkr.Button(player,width=5,height=3,text='RESUME',command=Resume)
+    resume.pack(fill='x')
 
-play=tkr.Button(player,width=5,height=3,text='PLAY AGAIN',command=PlayAgain)
-play.pack(fill='x')
+    stop=tkr.Button(player,width=5,height=3,text='STOP',command=Stop)
+    stop.pack(fill='x')
 
-name=tkr.LabelFrame(player,text='File Name')
-name.pack(fill='both' , expand='yes')
-contents1=tkr.Label(name,text=File)
-contents1.pack()
+    play=tkr.Button(player,width=5,height=3,text='PLAY AGAIN',command=PlayAgain)
+    play.pack(fill='x')
 
-title=tkr.LabelFrame(player,text='Title')
-title.pack(fill='both' , expand='yes')
-contents2=tkr.Label(title,text=tag.title)
-contents2.pack()
+    name=tkr.LabelFrame(player,text='File Name')
+    name.pack(fill='both' , expand='yes')
+    contents1=tkr.Label(name,text=File)
+    contents1.pack()
 
-artist=tkr.LabelFrame(player,text='Artist')
-artist.pack(fill='both' , expand='yes')
-contents3=tkr.Label(artist,text=tag.artist)
-contents3.pack()
+    title=tkr.LabelFrame(player,text='Title')
+    title.pack(fill='both' , expand='yes')
+    contents2=tkr.Label(title,text=tag.title)
+    contents2.pack()
 
-album=tkr.LabelFrame(player,text='Album')
-album.pack(fill='both' , expand='yes')
-contents4=tkr.Label(album,text=tag.album)
-contents4.pack()
+    artist=tkr.LabelFrame(player,text='Artist')
+    artist.pack(fill='both' , expand='yes')
+    contents3=tkr.Label(artist,text=tag.artist)
+    contents3.pack()
 
-genre=tkr.LabelFrame(player,text='Genre')
-genre.pack(fill='both' , expand='yes')
-contents5=tkr.Label(genre,text=tag.genre)
-contents5.pack()
+    album=tkr.LabelFrame(player,text='Album')
+    album.pack(fill='both' , expand='yes')
+    contents4=tkr.Label(album,text=tag.album)
+    contents4.pack()
 
-#song length mm:ss
-if File.endswith('.mp3'):
-	song=MP3(File)
-	songlength=int(song.info.length)
-elif File.endswith('.wav'):
-	song=sf.SoundFile(File)
-	songlength=int(len(song)/song.samplerate)
+    genre=tkr.LabelFrame(player,text='Genre')
+    genre.pack(fill='both' , expand='yes')
+    contents5=tkr.Label(genre,text=tag.genre)
+    contents5.pack()
 
-Minute=int(songlength/60)
-Sec=str(int(songlength-60*Minute))
+    #song length mm:ss
+    if File.endswith('.mp3'):
+        song=MP3(File)
+        songlength=int(song.info.length)
+    elif File.endswith('.wav'):
+        song=sf.SoundFile(File)
+        songlength=int(len(song)/song.samplerate)
 
-if len(str(Minute))==1: Minute='0'+str(Minute)
-else: Minute=str(Minute)
+    Minute=int(songlength/60)
+    Sec=str(int(songlength-60*Minute))
 
-if len(Sec)==1: Sec='0'+Sec
+    if len(str(Minute))==1: Minute='0'+str(Minute)
+    else: Minute=str(Minute)
 
-Total=Minute+':'+Sec
+    if len(Sec)==1: Sec='0'+Sec
 
-TotalTime=tkr.LabelFrame(player,text='Time')
-TotalTime.pack(fill='both' , expand='yes')
-contents6=tkr.Label(TotalTime,text=Total)
-contents6.pack()
+    Total=Minute+':'+Sec
 
-#time to end
-def timer():
-	if pygame.mixer.music.get_busy():
+    TotalTime=tkr.LabelFrame(player,text='Time')
+    TotalTime.pack(fill='both' , expand='yes')
+    contents6=tkr.Label(TotalTime,text=Total)
+    contents6.pack()
 
-		smin=songlength-int(pygame.mixer.music.get_pos()/1000)
-		minute=int(smin/60)
-		sec=str(int(smin-60*minute))
-
-		if len(str(minute))==1: minute='0'+str(minute)
-		else: minute=str(minute) 
-
-		if len(sec)==1: sec='0'+sec
-
-		time=minute+':'+sec
-	else:
-		time='00:00'
-
-	Timer.config(text=time,font='times 15')
-	player.after(1000,timer)
-
-Timer=tkr.Label(player,justify='center')
-Timer.pack()
+    Timer=tkr.Label(player,justify='center')
+    Timer.pack()
 
 
-timer()
+    #time to end
+    def timer():
+        if pygame.mixer.music.get_busy():
 
-player.mainloop()
+            smin=songlength-int(pygame.mixer.music.get_pos()/1000)
+            minute=int(smin/60)
+            sec=str(int(smin-60*minute))
+
+            if len(str(minute))==1: minute='0'+str(minute)
+            else: minute=str(minute) 
+
+            if len(sec)==1: sec='0'+sec
+
+            time=minute+':'+sec
+        else:
+            time='00:00'
+
+        Timer.config(text=time,font='times 15')
+        player.after(1000,timer)
+
+    timer()
+
+    PlayAgain()
+
+    player.mainloop()
+
+
+
+def addMusic():
+    addingwindow = tkr.Tk()
+    tkr.Label(addingwindow, text="Music File:").grid(row=0)
+
+    ent = tkr.Entry(addingwindow)
+    ent.grid(row=0, column=1)
+    print(type(ent))
+
+    def show_entry_fields():
+        source_file = ent.get()
+        shutil.copy2(source_file, 'Library')
+        addingwindow.destroy()
+    
+    tkr.Button(addingwindow, text='Add', command=show_entry_fields).grid(row=3, column=1, sticky=tkr.W, pady=4)
+
+    addingwindow.mainloop()
+
+
+
+mainwindow=tkr.Tk()
+
+mainwindow.title('Python Player')
+mainwindow.geometry('500x600')
+
+mainButton=tkr.Button(mainwindow,width=5,height=3,text='Add Music',command=addMusic)
+mainButton.pack(fill='x')
+
+def musicListSelect(event):
+    list_box=event.widget
+    mainFunc('Library\\'+list_box.get(list_box.curselection()[0]))
+
+listNodes = tkr.Listbox(mainwindow,width=40,height=20)
+listNodes.bind("<<ListboxSelect>>", musicListSelect)
+listNodes.pack(side='left',fill='both')
+
+scrollbar = tkr.Scrollbar(mainwindow,orient='vertical')
+scrollbar.config(command=listNodes.yview)
+scrollbar.pack(fill='y')
+
+listNodes.config(yscrollcommand=scrollbar.set)
+
+musicLibrary = os.listdir('Library')
+for i in range(len(musicLibrary)):
+    listNodes.insert(i+1, musicLibrary[i])
+
+mainwindow.mainloop()
