@@ -5,26 +5,22 @@ from mutagen.mp3 import MP3
 import soundfile as sf
 from tinytag import TinyTag
 
+listQueue=[]
 
-def mainFunc(File):
+def Player(File):
+
     # create GUI
     player=tkr.Tk()
 
-    player.title('Python Player')
+    player.title('Player')
     player.geometry('500x600')
-
-    # File can be changed
-    #File = 'Library\\file_example_MP3_2MG.mp3'
 
     # metadata
     tag=TinyTag.get(File)
-
-    # play when run program
+    
     pygame.init()
-    #pygame.mixer.init()
-    #pygame.mixer.music.load(File)
-    #pygame.mixer.music.play()
-
+    pygame.mixer.init()
+    
     # define functions for buttons
     def PlayAgain():
         pygame.mixer.music.load(File)
@@ -122,59 +118,128 @@ def mainFunc(File):
             time='00:00'
 
         Timer.config(text=time,font='times 15')
-        player.after(1000,timer)
+        player.after(100,timer)
 
     timer()
 
     PlayAgain()
 
-    player.mainloop()
-
-
-
-def addMusic():
-    addingwindow = tkr.Tk()
-    tkr.Label(addingwindow, text="Music File:").grid(row=0)
-
-    ent = tkr.Entry(addingwindow)
-    ent.grid(row=0, column=1)
-    print(type(ent))
-
-    def show_entry_fields():
-        source_file = ent.get()
-        shutil.copy2(source_file, 'Library')
-        addingwindow.destroy()
+    player.mainloop()	
     
-    tkr.Button(addingwindow, text='Add', command=show_entry_fields).grid(row=3, column=1, sticky=tkr.W, pady=4)
+def mainQueue():
 
-    addingwindow.mainloop()
+	Queuewindow=tkr.Tk()
 
+	Queuewindow.title('Queue')
+	Queuewindow.geometry('500x600')
+    
+	listNodes2 = tkr.Listbox(Queuewindow,width=40,height=20)
+	listNodes2.pack(side='left' , fill='both')
 
+	scrollbar2 = tkr.Scrollbar(Queuewindow,orient='vertical')
+	scrollbar2.config(command=listNodes2.yview)
+	scrollbar2.pack(fill='y')
 
+	listNodes2.config(yscrollcommand=scrollbar2.set)
+
+	for i in range(len(listQueue)):
+		listNodes2.insert(i+1, listQueue[i])
+	
+	for i in range(len(listQueue)):
+		Player(listQueue[i])
+		
+	Queuewindow.mainloop()
+	
+def library():
+	
+	libwindow=tkr.Tk()
+
+	libwindow.title('Library')
+	libwindow.geometry('500x600')
+
+	def addMusic():
+    		addingwindow = tkr.Tk()
+    		addingwindow.title('Add Music')
+   		
+    		tkr.Label(addingwindow, text="Music File:").grid(row=0)
+    		
+    		ent = tkr.Entry(addingwindow)
+    		ent.grid(row=0, column=1)
+    		print(type(ent))
+
+    		def show_entry_fields():
+        		source_file = ent.get()
+        		shutil.copy2(source_file, 'Library')
+        		addingwindow.destroy()
+        		libwindow.destroy()
+    
+    		tkr.Button(addingwindow, text='Add', command=show_entry_fields).grid(row=3, column=1, sticky=tkr.W, pady=4)
+
+    		addingwindow.mainloop()
+
+	def libOption(File):
+		libOptionwindow=tkr.Tk()
+	
+		libOptionwindow.title('File options')
+		libOptionwindow.geometry('300x400')
+	
+		def Queue():
+			shutil.copy2('Library\\'+File, 'Queue')
+			listQueue.append('Queue\\'+File)
+			libOptionwindow.destroy()
+		
+		def Remove():
+			os.remove('Library\\'+File)
+			if File in os.listdir('Queue'):
+				os.remove('Queue\\'+File)
+				listQueue.remove('Queue\\'+File)
+				
+			libOptionwindow.destroy()
+			libwindow.destroy()
+       	
+		option1=tkr.Button(libOptionwindow,width=5,height=3,text='To Queue',command=Queue)
+		option1.pack(fill='x')
+	
+		option2=tkr.Button(libOptionwindow,width=5,height=3,text='Remove From Library',command=Remove)
+		option2.pack(fill='x')
+	
+		libOptionwindow.mainloop()
+
+	libButton=tkr.Button(libwindow,width=5,height=3,text='Add Music',command=addMusic)
+	libButton.pack(fill='x')
+	
+	def musicListSelect(event):
+	    list_box=event.widget
+	    libOption(list_box.get(list_box.curselection()[0]))
+
+	listNodes1 = tkr.Listbox(libwindow,width=40,height=20)
+	listNodes1.bind("<<ListboxSelect>>", musicListSelect)
+	listNodes1.pack(side='left',fill='both')
+
+	scrollbar1 = tkr.Scrollbar(libwindow,orient='vertical')
+	scrollbar1.config(command=listNodes1.yview)
+	scrollbar1.pack(fill='y')
+
+	listNodes1.config(yscrollcommand=scrollbar1.set)
+
+	musicLibrary = os.listdir('Library')
+	for i in range(len(musicLibrary)):
+	    listNodes1.insert(i+1, musicLibrary[i])
+
+	libwindow.mainloop()
+	
 mainwindow=tkr.Tk()
 
 mainwindow.title('Python Player')
-mainwindow.geometry('500x600')
+mainwindow.geometry('300x400')
 
-mainButton=tkr.Button(mainwindow,width=5,height=3,text='Add Music',command=addMusic)
-mainButton.pack(fill='x')
+mainButton1=tkr.Button(mainwindow,width=5,height=3,text='Open Library',command=library)
+mainButton1.pack(fill='x')
 
-def musicListSelect(event):
-    list_box=event.widget
-    mainFunc('Library\\'+list_box.get(list_box.curselection()[0]))
+mainButton2=tkr.Button(mainwindow,width=5,height=3,text='Open Queue' ,command=mainQueue)
+mainButton2.pack(fill='x')
 
-listNodes = tkr.Listbox(mainwindow,width=40,height=20)
-listNodes.bind("<<ListboxSelect>>", musicListSelect)
-listNodes.pack(side='left',fill='both')
-
-scrollbar = tkr.Scrollbar(mainwindow,orient='vertical')
-scrollbar.config(command=listNodes.yview)
-scrollbar.pack(fill='y')
-
-listNodes.config(yscrollcommand=scrollbar.set)
-
-musicLibrary = os.listdir('Library')
-for i in range(len(musicLibrary)):
-    listNodes.insert(i+1, musicLibrary[i])
-
+for Music in os.listdir('Queue'):
+	os.remove('Queue\\'+Music)
+	
 mainwindow.mainloop()
