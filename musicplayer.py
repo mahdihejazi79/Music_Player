@@ -165,7 +165,6 @@ def library():
     		
     		ent = tkr.Entry(addingwindow)
     		ent.grid(row=0, column=1)
-    		print(type(ent))
 
     		def show_entry_fields():
         		source_file = ent.get()
